@@ -1,248 +1,131 @@
-# Management-E-Commerce-Website
-# 🛒 ForgeCart – Frontend (Client Side UI Only)
+# 🛒 ForgeCart – Premium Developer Gear
 
 ## 📌 Overview
 
-**ForgeCart** is a frontend-only e-commerce web application developed for the **BackForge Hackathon**.
+**ForgeCart** is a modern, full-stack ready e-commerce application developed for the **BackForge Hackathon**. It features a stunning glassmorphism UI, a robust product catalog, and integrated **Firebase Authentication** for secure user onboarding.
 
-It provides a complete **storefront UI prototype** that simulates a real-world shopping experience while leaving all backend logic—such as APIs, authentication, and database integration—to be implemented separately.
-
-This project is ideal for:
-
-* Hackathon participants
-* Backend developers looking for a ready UI
-* Learning frontend architecture of e-commerce systems
+This project serves as a premium foundation for building a developer-centric marketplace, combining high-end design with real-world functionality.
 
 ---
 
 ## 🚀 Key Highlights
 
-* Modern **e-commerce UI/UX**
-* Fully **responsive design**
-* **Reusable components**
-* **Backend-ready structure**
-* Clean and scalable frontend architecture
+*   🛡️ **Firebase Authentication**: Secure Register, Login, and Session management.
+*   💎 **Glassmorphism UI/UX**: Modern, premium storefront design.
+*   📱 **Fully Responsive**: Optimized for Desktop, Tablet, and Mobile.
+*   ⚡ **Injected Backend**: Express.js server serving static assets and API ready.
+*   📦 **Modular Architecture**: Clean separation of logic, styles, and components.
 
 ---
 
 ## 🏗️ System Architecture
 
-ForgeCart follows a **static multi-page architecture**:
+ForgeCart utilizes a specialized architecture designed for performance and scalability:
 
-* Each feature has its own HTML page
-* Shared styling via a global CSS file
-* No backend or API integration
-* Static placeholder data
+```mermaid
+graph TD
+    User((User)) -->|HTTPS| Frontend[Frontend - HTML5/CSS3]
+    Frontend -->|Auth API| Firebase[Firebase Auth Service]
+    Frontend -->|Static Assets| Server[Express.js Node Server]
+    Server -->|API Routes| Controllers[Business Logic Controllers]
+    Controllers -->|Queries| DB[(PostgreSQL Database)]
+```
 
-### 🔹 Architecture Layers
+### 🔹 Implementation Layers
 
-**1. UI Layer**
-
-* HTML5 (structure)
-* CSS (styling)
-* Font Awesome (icons)
-
-**2. Logic Layer**
-
-* Minimal / no JavaScript
-* No real functionality implemented
-
-**3. Data Layer**
-
-* No database
-* Static product and order data
+| Layer | Responsibility | Technologies | Status |
+| :--- | :--- | :--- | :--- |
+| **Identity** | User Auth, Session, Profile | Firebase Auth | ✅ Implemented |
+| **Frontend** | UI/UX, Navigation, Interactions | HTML5, CSS3, JS Modules | ✅ Implemented |
+| **Logic** | API Routes, Middleware, Auth Handling | Node.js, Express.js | 🏗️ In Progress |
+| **Storage** | Product Data, Orders, Cart Persistence | PostgreSQL, pg-node | 🏗️ In Progress |
 
 ---
 
-## 🛍️ Features & Modules
+## 🔐 Authentication Flow
 
-### 🏠 Landing & Product Listing
+The application uses a secure, event-driven authentication flow:
 
-* Hero section
-* Product grid layout
-* Search bar UI
-* Category filters (UI only)
-* Featured products
-
----
-
-### 📦 Product Details
-
-* Product image gallery
-* Pricing section
-* Specifications
-* Add to Cart & Buy Now buttons
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend (JS)
+    participant A as Firebase Auth
+    U->>F: Enter Email/Password
+    F->>A: signInWithEmailAndPassword()
+    A-->>F: Auth Token & User Object
+    F->>F: Update UI (Navbar & Profile)
+    F-->>U: Success Redirect to Index
+```
 
 ---
 
-### 🛒 Cart
+## 🛍️ Feature Implementation Status
 
-* Item listing
-* Quantity controls (UI)
-* Remove item option
-* Price summary
-* Checkout button
+### 🏠 Storefront & Search
+| Feature | Description | Status |
+| :--- | :--- | :--- |
+| **Product Grid** | Premium gear listing with glassmorphism cards. | ✅ Completed |
+| **Search UI** | Interactive search bar for digital and physical assets. | ✅ Completed |
+| **Category Filer** | Filter by Clothing, Digital Assets, Accessories. | ✅ Completed |
 
----
-
-### 💳 Checkout
-
-* Shipping form
-* Payment form
-* Order summary
-* Place Order button
-
----
-
-### 📜 Orders
-
-* Order history UI
-* Status tracking
-* Timestamps
-* Order summary
-
----
-
-### 🔐 Authentication
-
-* Login page
-* Registration page
-* User onboarding UI
-
-> ⚠️ Note: Authentication is UI-only. No real login system is implemented.
-
----
-
-## 🎨 UI/UX Design
-
-### Design Principles
-
-* Glassmorphism UI
-* Modern storefront feel
-* Clean and minimal navigation
-* Mobile-first responsiveness
-
-### Styling
-
-* Dark theme
-* Orange accent highlights
-* Rounded components
-* Shadows & hover effects
-
-### Interactions
-
-* Smooth transitions
-* Hover animations
-* Interactive form styling
-
----
-
-## 📐 Layout Structure
-
-* Multi-page navigation
-* Consistent header & footer
-* Grid-based product layout
-* Responsive design across devices
+### 🔐 User Account
+| Feature | Description | Status |
+| :--- | :--- | :--- |
+| **Registration** | New user onboarding with email verification ready. | ✅ Completed |
+| **Login** | Secure access to account and orders. | ✅ Completed |
+| **Logout** | Session termination across all pages. | ✅ Completed |
+| **Profile Sync** | Dynamic navbar updates with user display name. | ✅ Completed |
 
 ---
 
 ## 🧰 Tech Stack
 
-* **HTML5**
-* **CSS3**
-* **Font Awesome 6.4.0**
-* **Google Fonts**
-
-  * Outfit
-  * Inter
+| Category | technology |
+| :--- | :--- |
+| **Core** | HTML5, CSS3, Vanilla JavaScript (ES6 Modules) |
+| **Backend** | Node.js, Express.js |
+| **Security** | Firebase Authentication |
+| **Database** | PostgreSQL |
+| **Icons** | Font Awesome 6.4.0 |
+| **Typography** | Google Fonts (Outfit, Inter) |
 
 ---
 
 ## 📁 Project Structure
 
-```
+```bash
 /
-├── index.html        # Landing / Product Listing
-├── product.html      # Product Details
-├── cart.html         # Cart Page
-├── checkout.html     # Checkout Flow
-├── orders.html       # Order History
-├── login.html        # Login Page
-├── register.html     # Registration Page
-├── style.css         # Global Styles
-├── assets/           # Images & Media
-└── components/       # Reusable UI Components
+├── js/
+│   ├── auth-logic.js      # Firebase Auth implementation
+│   ├── firebase-config.js # Firebase initialization
+│   └── ui-handler.js      # Global UI state management
+├── src/
+│   ├── app.js             # Express application & Static serving
+│   ├── controllers/       # API route handlers
+│   └── routes/            # Backend API definitions
+├── css/                   # Global and component stylesheets
+├── assets/                # Product images and branding
+├── index.html             # Storefront / Dashboard
+├── login.html             # Secure Access
+└── register.html          # New User Onboarding
 ```
 
 ---
 
 ## 📱 Responsiveness
 
-ForgeCart is optimized for:
+ForgeCart is optimized for the modern developer workspace:
 
-* Desktop 💻
-* Tablet 📱
-* Mobile 📲
-
-Built using:
-
-* CSS Grid
-* Flexbox
-* Mobile-first approach
-
----
-
-## ⚠️ Limitations
-
-This project is **frontend-only** and does NOT include:
-
-* Backend integration
-* API connectivity
-* Database storage
-* Authentication system
-* Cart persistence
-* Order processing
-* Search functionality
-* Filtering logic
-* Inventory management
-
----
-
-## 🔮 Future Enhancements
-
-* Backend API integration
-* JWT/session authentication
-* Dynamic product catalog
-* Real-time search
-* Advanced filtering
-* Persistent cart
-* Payment gateway integration
-* Order & inventory management
-* Wishlist system
-* Reviews & ratings
-* Personalized dashboards
+*   **Desktop 💻**: Full multi-column grid layouts for 4K and ultrawide monitors.
+*   **Tablet 📱**: Optimized touch targets and reflowing content.
+*   **Mobile 📲**: Mobile-first approach with a focus on ease of navigation.
 
 ---
 
 ## 🎯 Purpose
 
-ForgeCart is designed to:
-
-* Provide a **ready-to-use frontend**
-* Accelerate **hackathon development**
-* Help teams focus on **backend implementation**
-
----
-
-## 🏁 Conclusion
-
-ForgeCart serves as a **complete UI foundation** for building a full-stack e-commerce platform.
-
-It enables developers to:
-
-* Skip UI development time
-* Focus on backend logic
-* Integrate APIs seamlessly
+ForgeCart is designed to help hackathon participants and developers skip the repetitive UI setup and jump straight into building complex backend logic. It provides a **production-grade UI** coupled with **ready-to-use authentication**.
 
 ---
 
@@ -251,12 +134,10 @@ It enables developers to:
 This project is part of the **BackForge Hackathon ecosystem**.
 Feel free to fork, extend, and integrate your backend solutions.
 
+💡 *Build fast. Ship faster. Forge better.*
+
 ---
 
 ## 📜 License
 
-This project is open for educational and hackathon use.
-
----
-
-💡 *Build fast. Ship faster. Forge better.*
+Distributed under the MIT License. See `LICENSE` for more information.
