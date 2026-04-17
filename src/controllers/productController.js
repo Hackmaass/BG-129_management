@@ -1,4 +1,4 @@
-const { db, collection, doc, getDoc, getDocs } = require('../config/firebaseAdmin');
+const { db, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc } = require('../config/firebaseAdmin');
 
 const parseNumber = (value) => {
     if (value === undefined) {
@@ -34,9 +34,11 @@ exports.getAllProducts = async (req, res, next) => {
 
         // Client-side filtering (Firestore compound queries can be complex, doing it in memory for now)
         let filtered = products.filter((product) => {
+            const title = (product.title || product.name || '').toLowerCase();
+            const desc = (product.description || '').toLowerCase();
             const matchesQuery = !loweredQuery
-                || product.name.toLowerCase().includes(loweredQuery)
-                || product.description.toLowerCase().includes(loweredQuery);
+                || title.includes(loweredQuery)
+                || desc.includes(loweredQuery);
 
             const matchesCategory = !category || product.category.toLowerCase() === category.toLowerCase();
             const matchesMin = min === undefined || product.price >= min;
@@ -129,6 +131,61 @@ exports.getInventory = async (req, res, next) => {
             count: inventory.length,
             data: inventory,
         });
+    } catch (error) {
+        next(error);
+    }
+};
+exports.createProduct = async (req, res, next) => {
+    try {
+        const { title, price, inventory, category, description, image, type, techStackTags } = req.body;
+        
+        const newDocRef = doc(collection(db, 'products'));
+        const productData = {
+            id: newDocRef.id,
+            title,
+            price: Number(price),
+            inventory: Number(inventory),
+            category: category || 'general',
+            description: description || '',
+            image: image || 'assets/images/hoodie.png',
+            type: type || 'physical',
+            techStackTags: techStackTags || [],
+            rating: 5.0,
+            featured: false,
+            createdAt: new Date().toISOString()
+        };
+
+        await setDoc(newDocRef, productData);
+        res.status(201).json({ status: 'success', data: productData });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.updateProduct = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        
+        // Clean and validate updates
+        if (updates.price) updates.price = Number(updates.price);
+        if (updates.inventory) updates.inventory = Number(updates.inventory);
+
+        const docRef = doc(db, 'products', id);
+        await updateDoc(docRef, updates);
+        
+        res.status(200).json({ status: 'success', message: `Product ${id} updated.` });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.deleteProduct = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const docRef = doc(db, 'products', id);
+        await deleteDoc(docRef);
+        res.status(200).json({ status: 'success', message: `Product ${id} deleted.` });
     } catch (error) {
         next(error);
     }

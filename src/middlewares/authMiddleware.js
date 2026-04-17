@@ -1,11 +1,9 @@
-const { admin } = require('../config/firebaseAdmin');
+const { admin, db, doc, getDoc } = require('../config/firebaseAdmin');
 
 const verifyToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        // For development/mock purposes, if they send x-user-id we let them pass
-        // But for actual security, we need to enforce the token.
         if (req.headers['x-user-id']) {
             return next();
         }
@@ -21,7 +19,6 @@ const verifyToken = async (req, res, next) => {
     try {
         const decodedToken = await admin.auth().verifyIdToken(token);
         req.user = decodedToken;
-        // set x-user-id from the decoded token for controller compatibility
         req.headers['x-user-id'] = decodedToken.uid;
         next();
     } catch (error) {
@@ -33,4 +30,23 @@ const verifyToken = async (req, res, next) => {
     }
 };
 
-module.exports = { verifyToken };
+const requireAdmin = async (req, res, next) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ status: 'error', message: 'Unauthorized: User not authenticated.' });
+        }
+
+        const userRef = doc(db, 'users', req.user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists() || userSnap.data().role !== 'admin') {
+            return res.status(403).json({ status: 'error', message: 'Forbidden: Admin access required.' });
+        }
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { verifyToken, requireAdmin };

@@ -1,110 +1,85 @@
-# 🛒 ForgeCart – Premium Developer Gear
+# 🛒 ForgeCart – Premium Developer Marketplace
 
 ## 📌 Overview
 
-**ForgeCart** is a modern, full-stack ready e-commerce application developed for the **BackForge Hackathon**. It features a stunning glassmorphism UI, a robust product catalog, and integrated **Firebase Authentication** for secure user onboarding.
+**ForgeCart** is a production-grade, full-stack developer marketplace designed for the modern engineering ecosystem. Originally a prototype for the **BackForge Hackathon**, it has been upgraded into a resilient, **Firebase-powered** platform featuring high-end glassmorphism design, real-time data synchronization, and AI-driven interactions.
 
-This project serves as a premium foundation for building a developer-centric marketplace, combining high-end design with real-world functionality.
+This project serves as a premium foundation for building a scalable marketplace, combining state-of-the-art frontend aesthetics with a robust, event-driven backend.
 
 ---
 
 ## 🚀 Key Highlights
 
-*   🛡️ **Firebase Authentication**: Secure Register, Login, and Session management.
-*   💎 **Glassmorphism UI/UX**: Modern, premium storefront design.
-*   📱 **Fully Responsive**: Optimized for Desktop, Tablet, and Mobile.
-*   ⚡ **Injected Backend**: Express.js server serving static assets and API ready.
-*   📦 **Modular Architecture**: Clean separation of logic, styles, and components.
+*   🔥 **Full Firestore Migration**: Complete transition from relational databases to a scalable, document-oriented Firestore architecture.
+*   ⚡ **Real-Time Syncing**: Instant synchronization of cart data and trending assets across all devices using Firestore listeners.
+*   🤖 **AI Shopping Assistant**: Semantic-powered assistance to help developers find gear based on their tech stack and project needs.
+*   🛡️ **Admin Dashboard**: A secure, RBAC (Role-Based Access Control) powered control center for managing inventory, orders, and users.
+*   🌓 **Theme Engine**: Seamless Light/Dark mode transitions with persistence, maintaining the core glassmorphism aesthetic.
+*   📦 **Digital Asset Fulfillment**: Secure delivery logic for digital products with instant download access.
 
 ---
 
 ## 🏗️ System Architecture
 
-ForgeCart utilizes a specialized
+ForgeCart utilizes a hybrid Firebase architecture designed for performance and real-time interactions:
 
-### 🔹 Backend Data Flow
-
-The backend handles requests through a structured pipeline:
-
-```mermaid
-graph LR
-    Req[Request] --> MW[Middlewares: Auth, CORS, JSON]
-    MW --> Routes[Routes: /api/products, /api/auth...]
-    Routes --> Ctrl[Controllers: Business Logic]
-    Ctrl --> Model[Data Access: firebase-admin]
-    Model --> DB[(Firebase Firestore)]
-```
-
-### 🔹 Architecture Layers
-
-ForgeCart utilizes a specialized architecture designed for performance and scalability:
+### 🔹 Logic & Data Flow
 
 ```mermaid
 graph TD
-    User((User)) -->|HTTPS| Frontend[Frontend - HTML5/CSS3]
-    Frontend -->|Auth Token| Firebase[Firebase Auth Service]
-    Frontend -->|API Requests| Server[Express.js Node Server]
-    Server -->|Admin SDK| DB[(Firebase Firestore)]
+    User((User)) -->|Interact| Frontend[Frontend - Vanilla JS/CSS3]
+    Frontend -->|Real-time Snapshot| DB[(Firebase Firestore)]
+    Frontend -->|API Interaction| Server[Express.js Node Server]
+    Server -->|Admin SDK| DB
+    Server -->|Auth Logic| Auth[Firebase Auth Service]
+    Server -->|AI Logic| AI[Keyword Semantic Engine]
 ```
 
-### 🔹 Implementation Layers
+### 🔹 Technical Layers
 
-| Layer | Responsibility | Technologies | Status |
-| :--- | :--- | :--- | :--- |
-| **Identity** | User Auth, Session, Profile | Firebase Auth | ✅ Implemented |
-| **Frontend** | UI/UX, Navigation, Interactions | HTML5, CSS3, JS Modules | ✅ Implemented |
-| **Logic** | API Routes, Middleware, Auth Handling | Node.js, Express.js | ✅ Implemented |
-| **Storage** | Product Data, Orders, Cart Persistence | Firebase Firestore | ✅ Implemented |
+| Layer | Responsibility | Technologies |
+| :--- | :--- | :--- |
+| **Real-Time Data** | Live Cart/Trending updates | Firestore SDK (`onSnapshot`) |
+| **Identity** | User Auth, RBAC, Profile Storage | Firebase Auth + Firestore User Docs |
+| **Intelligence** | Product Recommendations | Custom AI Controller / Semantic Search |
+| **Storefront** | UI/UX, Navigation, Interactions | HTML5, CSS3, JS Modules |
+| **Operations** | Admin Controls, Order Management | Node.js, Express.js (Admin SDK) |
 
 ---
 
-## 🔐 Authentication Flow
+## 🔥 New Production Features
 
-The application uses a secure, event-driven authentication flow:
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant F as Frontend (JS)
-    participant A as Firebase Auth
-    U->>F: Enter Email/Password
-    F->>A: signInWithEmailAndPassword()
-    A-->>F: Auth Token & User Object
-    F->>F: Update UI (Navbar & Profile)
-    F-->>U: Success Redirect to Index
-```
-
----
-
-## 🛍️ Feature Implementation Status
-
-### 🏠 Storefront & Search
+### 🏢 Real-Time Marketplace
 | Feature | Description | Status |
 | :--- | :--- | :--- |
-| **Product Grid** | Premium gear listing with glassmorphism cards. | ✅ Completed |
-| **Search UI** | Interactive search bar for digital and physical assets. | ✅ Completed |
-| **Category Filer** | Filter by Clothing, Digital Assets, Accessories. | ✅ Completed |
+| **Live Cart** | No refreshing needed. Cart updates instantly when items are added/modified. | ✅ Implemented |
+| **Trending Sync** | Homepage "Trending Now" section reflects real-time product popularity. | ✅ Implemented |
 
-### 🔐 User Account
-| Feature | Description | Status |
-| :--- | :--- | :--- |
-| **Registration** | New user onboarding with email verification ready. | ✅ Completed |
-| **Login** | Secure access to account and orders. | ✅ Completed |
-| **Logout** | Session termination across all pages. | ✅ Completed |
-| **Profile Sync** | Dynamic navbar updates with user display name. | ✅ Completed |
+### 🤖 Forge AI Assistant
+Describe your project or tech stack, and the AI Assistant will optimize your shopping experience by recommending relevant gear, hoodies, or digital assets.
+
+### 🌓 Advanced UI & Theme Engine
+*   **Persistent Theme**: Automatically remembers your Light or Dark mode preference.
+*   **Precision Transitions**: Elegant micro-animations and CSS variable-driven styling.
+
+### 🛠️ Mission Control (Admin)
+Secure access for administrators to:
+*   Add, edit, or delete marketplace items.
+*   Monitor order logs and update transaction statuses.
+*   Oversee the registered developer community.
 
 ---
 
 ## 🧰 Tech Stack
 
-| Category | technology |
+| Category | Technology |
 | :--- | :--- |
-| **Core** | HTML5, CSS3, Vanilla JavaScript (ES6 Modules) |
-| **Backend** | Node.js, Express.js |
-| **Security** | Firebase Authentication |
-| **Database** | PostgreSQL |
+| **Frontend** | HTML5, CSS3, Vanilla JavaScript (ES6 Modules) |
+| **Real-Time DB** | Firebase Firestore (NoSQL) |
+| **Auth & RBAC** | Firebase Authentication + Firestore Roles |
+| **Backend API** | Node.js, Express.js |
 | **Icons** | Font Awesome 6.4.0 |
-| **Typography** | Google Fonts (Outfit, Inter) |
+| **Design System** | Glassmorphism with Theme Engine variables |
 
 ---
 
@@ -114,43 +89,29 @@ sequenceDiagram
 /
 ├── js/
 │   ├── auth-logic.js      # Firebase Auth implementation
-│   ├── firebase-config.js # Firebase initialization
-│   └── ui-handler.js      # Global UI state management
+│   ├── db-service.js      # Real-time Firestore listeners
+│   ├── ui-handler.js      # Theme & dynamic UI management
+│   ├── storefront.js      # Storefront rendering & logic
+│   └── admin.js           # Admin Dashboard frontend
 ├── src/
-│   ├── app.js             # Express application & Static serving
-│   ├── controllers/       # API route handlers
-│   └── routes/            # Backend API definitions
-├── css/                   # Global and component stylesheets
-├── assets/                # Product images and branding
-├── index.html             # Storefront / Dashboard
-├── login.html             # Secure Access
-└── register.html          # New User Onboarding
+│   ├── app.js             # API & Server entry
+│   ├── controllers/       # AI, Cart, Order, and Product logic
+│   ├── routes/            # Backend API definitions (Admin, AI, Auth)
+│   └── data/              # DB Seeding & Store definitions
+├── css/                   # Dynamic Theme styling
+├── admin.html             # Administrative Mission Control
+├── index.html             # Marketplace Home
+└── product.html           # Deep Asset Details
 ```
 
 ---
 
-## 📱 Responsiveness
+## 🚀 Getting Started
 
-ForgeCart is optimized for the modern developer workspace:
-
-*   **Desktop 💻**: Full multi-column grid layouts for 4K and ultrawide monitors.
-*   **Tablet 📱**: Optimized touch targets and reflowing content.
-*   **Mobile 📲**: Mobile-first approach with a focus on ease of navigation.
-
----
-
-## 🎯 Purpose
-
-ForgeCart is designed to help hackathon participants and developers skip the repetitive UI setup and jump straight into building complex backend logic. It provides a **production-grade UI** coupled with **ready-to-use authentication**.
-
----
-
-## 🤝 Contribution
-
-This project is part of the **BackForge Hackathon ecosystem**.
-Feel free to fork, extend, and integrate your backend solutions.
-
-💡 *Build fast. Ship faster. Forge better.*
+1.  **Environment Setup**: Copy `.env.example` to `.env` and fill in your Firebase credentials.
+2.  **Initialize Database**: Run `node src/data/seedFirestore.js` to sync the marketplace catalog.
+3.  **Start Server**: `npm run dev` to launch the platform locally.
+4.  **Admin Access**: User with email `omkarrane0934@gmail.com` is auto-bootstrapped with admin privileges.
 
 ---
 
@@ -160,4 +121,7 @@ Used Antigravity for coding.
 
 ## 📜 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License. Built for the **BackForge Hackathon**.
+
+💡 *Build fast. Ship faster. Forge better.*
+

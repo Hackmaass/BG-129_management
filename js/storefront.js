@@ -1,4 +1,5 @@
 import { auth } from './auth-logic.js';
+import { listenToCart, listenToTrending } from './db-service.js';
 
 const API_BASE_URL = '/api';
 const USER_ID_KEY = 'forgecart_user_id';
@@ -57,16 +58,16 @@ const renderIndexPage = async () => {
         categories.forEach((category) => {
             const option = document.createElement('option');
             option.value = category;
-            option.textContent = category;
+            option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
             categoryFilter.appendChild(option);
         });
     };
 
-    const renderProducts = (products) => {
-        productGrid.innerHTML = '';
+    const renderProducts = (products, targetGrid = productGrid) => {
+        targetGrid.innerHTML = '';
 
         if (!products.length) {
-            productGrid.innerHTML = '<p style="color: var(--text-muted);">No products match your filter.</p>';
+            targetGrid.innerHTML = '<p style="color: var(--text-muted);">No products match your filter.</p>';
             return;
         }
 
@@ -76,12 +77,12 @@ const renderIndexPage = async () => {
             card.innerHTML = `
                 <a href="product.html?id=${product.id}" class="product-link" style="text-decoration:none;">
                     <div class="product-img-wrapper">
-                        <img src="assets/images/hoodie.png" alt="${product.name}" class="product-img">
+                        <img src="${product.image}" alt="${product.title}" class="product-img">
                     </div>
                 </a>
                 <div class="product-category"><i class="fas fa-tag" style="font-size:0.7rem; margin-right:4px;"></i> ${product.category}</div>
                 <a href="product.html?id=${product.id}" class="product-link" style="text-decoration:none;">
-                    <h3 class="product-title">${product.name}</h3>
+                    <h3 class="product-title">${product.title}</h3>
                 </a>
                 <div class="product-footer">
                     <div class="product-price">${formatPrice(product.price)}</div>
@@ -103,13 +104,15 @@ const renderIndexPage = async () => {
                         method: 'POST',
                         body: JSON.stringify({ productId: product.id, quantity: 1 }),
                     });
-                    alert(`${product.name} added to cart.`);
+                    // Feedback is handled by real-time listener if on cart page, 
+                    // otherwise a simple alert is fine for index.
+                    alert(`${product.title} added to cart.`);
                 } catch (error) {
                     alert(error.message);
                 }
             });
 
-            productGrid.appendChild(card);
+            targetGrid.appendChild(card);
         });
     };
 
@@ -119,7 +122,7 @@ const renderIndexPage = async () => {
 
         const filtered = allProducts.filter((product) => {
             const matchesSearch = !searchValue
-                || product.name.toLowerCase().includes(searchValue)
+                || product.title.toLowerCase().includes(searchValue)
                 || product.description.toLowerCase().includes(searchValue);
             const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
             return matchesSearch && matchesCategory;
@@ -127,6 +130,22 @@ const renderIndexPage = async () => {
 
         renderProducts(filtered);
     };
+
+    // Trending Section Injection
+    const trendingContainer = document.createElement('div');
+    trendingContainer.className = 'trending-section';
+    trendingContainer.innerHTML = `
+        <div class="page-header" style="margin-top: 60px;">
+            <h2 class="page-title" style="font-size: 1.6rem;">Trending Now <i class="fas fa-bolt" style="color:var(--primary); font-size:1.2rem; margin-left:10px;"></i></h2>
+        </div>
+        <div id="trending-grid" class="product-grid" style="margin-bottom: 60px;"></div>
+    `;
+    productGrid.parentNode.insertBefore(trendingContainer, productGrid);
+    
+    listenToTrending((trendingProducts) => {
+        const trendingGrid = document.getElementById('trending-grid');
+        if (trendingGrid) renderProducts(trendingProducts, trendingGrid);
+    });
 
     try {
         const response = await request('/products');
@@ -157,20 +176,23 @@ const renderProductPage = async () => {
         container.innerHTML = `
             <div class="product-details">
                 <div class="product-img-wrapper flex items-center justify-center">
-                    <img src="assets/images/hoodie.png" alt="${product.name}" class="product-img" style="width: 100%; border-radius:16px;">
+                    <img src="${product.image}" alt="${product.title}" class="product-img" style="width: 100%; border-radius:16px;">
                 </div>
                 <div class="product-info glass" style="padding: 40px; text-align: left; height: 100%; display: flex; flex-direction: column; justify-content: center;">
                     <div class="product-category" style="margin-bottom: 15px;"><i class="fas fa-fingerprint"></i> ${product.category}</div>
-                    <h1>${product.name}</h1>
+                    <h1>${product.title}</h1>
                     <div class="price">
                         ${formatPrice(product.price)}
                         <span class="badge"><i class="fas fa-check-circle"></i> ${product.inventory > 0 ? 'In Stock' : 'Out of Stock'}</span>
                     </div>
                     <p class="desc">${product.description}</p>
+                    <div class="tech-tags" style="margin-bottom: 20px;">
+                        ${(product.techStackTags || []).map(tag => `<span class="badge" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2); margin-right: 5px;">${tag}</span>`).join('')}
+                    </div>
                     <ul class="feature-list">
                         <li><i class="fas fa-star"></i> Rating ${product.rating}</li>
                         <li><i class="fas fa-boxes"></i> Inventory ${product.inventory}</li>
-                        <li><i class="fas fa-shipping-fast"></i> Fast dispatch available</li>
+                        <li><i class="fas fa-truck"></i> Logic: ${product.type === 'digital' ? 'Instant Delivery' : 'Fast Shipping'}</li>
                     </ul>
                     <div class="action-row">
                         <button class="btn" id="add-to-cart-btn" style="flex: 1; padding: 16px; font-size: 1.1rem;" ${product.inventory === 0 ? 'disabled' : ''}>
@@ -206,14 +228,16 @@ const renderCartPage = async () => {
 
     const summaryTotal = document.getElementById('summary-total-amt');
     const checkoutButton = document.getElementById('checkout-btn');
+    const userId = localStorage.getItem(USER_ID_KEY);
 
-    const refreshCart = async () => {
-        const response = await request('/cart');
-        const cart = response.data;
-        summaryTotal.textContent = formatPrice(cart.subtotal);
+    const updateUI = (cart) => {
+        // Calculate subtotal locally for display
+        const items = cart.items || [];
+        const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        summaryTotal.textContent = formatPrice(subtotal);
 
         cartItemsList.innerHTML = '';
-        if (!cart.items.length) {
+        if (!items.length) {
             cartItemsList.innerHTML = '<p style="color: var(--text-muted);">Your cart is empty.</p>';
             checkoutButton.disabled = true;
             return;
@@ -221,13 +245,14 @@ const renderCartPage = async () => {
 
         checkoutButton.disabled = false;
 
-        cart.items.forEach((item) => {
+        items.forEach((item) => {
+            const lineTotal = item.price * item.quantity;
             const row = document.createElement('div');
             row.className = 'glass cart-item';
             row.innerHTML = `
-                <img src="assets/images/hoodie.png" alt="${item.name}" class="cart-item-img">
+                <img src="${item.image || 'assets/images/hoodie.png'}" alt="${item.name || item.title}" class="cart-item-img">
                 <div class="cart-item-info">
-                    <div class="cart-item-title">${item.name}</div>
+                    <div class="cart-item-title">${item.name || item.title}</div>
                     <div class="cart-item-price">${formatPrice(item.price)}</div>
                 </div>
                 <div class="cart-qty-ctrl">
@@ -235,7 +260,7 @@ const renderCartPage = async () => {
                     <span class="qty-val">${item.quantity}</span>
                     <button class="qty-btn" data-action="increase"><i class="fas fa-plus"></i></button>
                 </div>
-                <div class="cart-item-total">${formatPrice(item.lineTotal)}</div>
+                <div class="cart-item-total">${formatPrice(lineTotal)}</div>
                 <button class="icon-btn" data-action="remove">
                     <i class="fas fa-trash"></i>
                 </button>
@@ -247,7 +272,6 @@ const renderCartPage = async () => {
                         method: 'PATCH',
                         body: JSON.stringify({ quantity: item.quantity + 1 }),
                     });
-                    await refreshCart();
                 } catch (error) {
                     alert(error.message);
                 }
@@ -260,7 +284,6 @@ const renderCartPage = async () => {
                         method: 'PATCH',
                         body: JSON.stringify({ quantity: item.quantity - 1 }),
                     });
-                    await refreshCart();
                 } catch (error) {
                     alert(error.message);
                 }
@@ -268,22 +291,19 @@ const renderCartPage = async () => {
 
             row.querySelector('[data-action="remove"]').addEventListener('click', async () => {
                 await request(`/cart/remove/${item.productId}`, { method: 'DELETE' });
-                await refreshCart();
             });
 
             cartItemsList.appendChild(row);
         });
-    };
+    }
 
     checkoutButton.addEventListener('click', () => {
         window.location.href = 'checkout.html';
     });
 
-    try {
-        await refreshCart();
-    } catch (error) {
-        cartItemsList.innerHTML = `<p style="color:#ff6b6b;">${error.message}</p>`;
-    }
+    listenToCart(userId, (cartData) => {
+        updateUI(cartData);
+    });
 };
 
 const renderCheckoutPage = async () => {
@@ -312,7 +332,7 @@ const renderCheckoutPage = async () => {
             line.className = 'flex justify-between items-center mb-2';
             line.style.fontSize = '0.95rem';
             line.innerHTML = `
-                <span class="text-muted"><i class="fas fa-layer-group" style="font-size: 0.8rem; margin-right: 5px; color: var(--primary);"></i> ${item.name}
+                <span class="text-muted"><i class="fas fa-layer-group" style="font-size: 0.8rem; margin-right: 5px; color: var(--primary);"></i> ${item.name || item.title}
                     <span style="background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px;">x${item.quantity}</span>
                 </span>
                 <span>${formatPrice(item.lineTotal)}</span>
@@ -376,10 +396,19 @@ const renderOrdersPage = async () => {
         }
 
         const rows = orders.map((order) => `
-            <tr>
-                <td style="font-family: monospace; font-size: 0.95rem; color: var(--text-main);"><strong>${order.orderId}</strong></td>
+            <tr class="order-row">
+                <td style="font-family: monospace; font-size: 0.95rem; color: var(--text-main);"><strong>${order.orderId.slice(0, 12)}...</strong></td>
                 <td style="color: var(--text-muted);">${new Date(order.createdAt).toLocaleString()}</td>
-                <td><span style="background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px; font-size: 0.85rem;">${order.items.length} item(s)</span></td>
+                <td>
+                    <div class="flex flex-col gap-2">
+                        ${order.items.map(item => `
+                            <div class="flex items-center gap-2">
+                                <span style="background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 12px; font-size: 0.8rem;">${item.name || item.title}</span>
+                                ${item.type === 'digital' && item.downloadURL ? `<a href="${item.downloadURL}" target="_blank" class="btn" style="padding: 2px 8px; font-size: 0.7rem; background: var(--success);"><i class="fas fa-download"></i> Download</a>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </td>
                 <td style="color: var(--primary); font-weight:700;">${formatPrice(order.total)}</td>
                 <td><span class="status-badge"><i class="fas fa-check-circle"></i> ${order.status}</span></td>
             </tr>
@@ -406,6 +435,61 @@ const renderOrdersPage = async () => {
     }
 };
 
+const setupAIAssistant = () => {
+    const aiBtn = document.getElementById('ai-recommend-btn');
+    const aiPrompt = document.getElementById('ai-prompt');
+    const resultsContainer = document.getElementById('ai-results-container');
+
+    if (!aiBtn || !aiPrompt || !resultsContainer) return;
+
+    aiBtn.addEventListener('click', async () => {
+        const prompt = aiPrompt.value.trim();
+        if (!prompt) return;
+
+        aiBtn.disabled = true;
+        aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        try {
+            const response = await request('/ai/recommend', {
+                method: 'POST',
+                body: JSON.stringify({ prompt }),
+            });
+
+            const products = response.data || [];
+            resultsContainer.style.display = 'block';
+            resultsContainer.innerHTML = `
+                <p style="font-size: 0.9rem; color: var(--primary); margin-bottom: 15px;">
+                    <i class="fas fa-comment-dots"></i> ${response.message}
+                </p>
+                <div class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                    ${products.map(p => `
+                        <div class="glass product-card" style="padding: 12px; font-size: 0.9rem;">
+                            <div class="product-img-wrapper" style="margin-bottom: 10px;">
+                                <img src="${p.image}" alt="${p.title}" class="product-img">
+                            </div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 5px;">${p.title}</h4>
+                            <div style="display:flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; color: var(--primary);">${formatPrice(p.price)}</span>
+                                <a href="product.html?id=${p.id}" class="btn" style="padding: 5px 10px; font-size: 0.75rem;">View</a>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } catch (error) {
+            console.error(error);
+            alert("AI service unavailable. Falling back to local search.");
+        } finally {
+            aiBtn.disabled = false;
+            aiBtn.innerHTML = '<i class="fas fa-magic"></i> Optimize';
+        }
+    });
+
+    aiPrompt.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') aiBtn.click();
+    });
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
     ensureUserId();
     await renderIndexPage();
@@ -413,4 +497,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderCartPage();
     await renderCheckoutPage();
     await renderOrdersPage();
+    setupAIAssistant();
 });

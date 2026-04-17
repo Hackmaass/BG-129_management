@@ -139,7 +139,22 @@ exports.getOrderHistory = async (req, res, next) => {
         const snapshot = await getDocs(q);
         
         let userOrders = [];
-        snapshot.forEach(docSnap => userOrders.push(docSnap.data()));
+        for (const docSnap of snapshot.docs) {
+            const order = docSnap.data();
+            // Securely enrich digital products with download URLs ONLY for purchasers
+            const enrichedItems = await Promise.all(order.items.map(async (item) => {
+                const productRef = doc(db, 'products', item.productId);
+                const productSnap = await getDoc(productRef);
+                const product = productSnap.data();
+                
+                if (product && product.type === 'digital' && product.downloadURL) {
+                    return { ...item, type: 'digital', downloadURL: product.downloadURL };
+                }
+                return { ...item, type: 'physical' };
+            }));
+            
+            userOrders.push({ ...order, items: enrichedItems });
+        }
 
         userOrders = userOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -148,6 +163,31 @@ exports.getOrderHistory = async (req, res, next) => {
             count: userOrders.length,
             data: userOrders,
         });
+    } catch (error) {
+        next(error);
+    }
+};
+exports.getAllOrders = async (req, res, next) => {
+    try {
+        const snapshot = await getDocs(collection(db, 'orders'));
+        const orders = snapshot.docs.map(docSnap => docSnap.data());
+        const sorted = orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        res.status(200).json({ status: 'success', data: sorted });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.updateOrderStatus = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        
+        const docRef = doc(db, 'orders', id);
+        await updateDoc(docRef, { status });
+        
+        res.status(200).json({ status: 'success', message: `Order ${id} updated to ${status}.` });
     } catch (error) {
         next(error);
     }

@@ -86,8 +86,10 @@ exports.addToCart = async (req, res, next) => {
         } else {
             items.push({
                 productId: requestedProductId,
-                name: product.name,
+                title: product.title,
+                name: product.title, // Backward compatibility
                 price: product.price,
+                image: product.image,
                 quantity: requestedQuantity,
             });
         }

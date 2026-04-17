@@ -10,6 +10,7 @@
   --card-border-hover: rgba(249, 115, 22, 0.4);
   
   --primary: #f97316;
+  --primary-rgb: 249, 115, 22;
   --primary-hover: #ea580c;
   --primary-glow: rgba(249, 115, 22, 0.5);
   --primary-subtle: rgba(249, 115, 22, 0.06);
@@ -46,6 +47,25 @@
   --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.35);
   --shadow-glow: 0 0 40px rgba(249, 115, 22, 0.15);
 }
+
+body.light-mode {
+  --bg-dark: #f8fafc;
+  --bg-darker: #f1f5f9;
+  --bg-glass: rgba(248, 250, 252, 0.8);
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-hover: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(0, 0, 0, 0.06);
+  --card-border-hover: rgba(249, 115, 22, 0.4);
+  
+  --text-main: #1e293b;
+  --text-muted: #475569;
+  --text-dim: #64748b;
+  --text-bright: #0f172a;
+  
+  background-color: var(--bg-darker);
+  color: var(--text-main);
+}
+
 
 * {
   margin: 0;
@@ -209,13 +229,14 @@ h1, h2, h3, h4, .nav-brand, .product-title {
   justify-content: space-between;
   align-items: center;
   padding: 0 5%;
-  background: rgba(2, 6, 23, 0.55);
+  background: var(--bg-glass);
   backdrop-filter: blur(30px) saturate(1.6);
   -webkit-backdrop-filter: blur(30px) saturate(1.6);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--card-border);
   transition: var(--transition);
   animation: slideDown 0.5s ease-out;
 }
+
 
 .navbar.scrolled {
   background: rgba(2, 6, 23, 0.92);
