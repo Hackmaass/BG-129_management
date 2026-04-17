@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForgeCart | Agentic Automations</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-mode">
+    <nav class="navbar" id="navbar">
+        <a href="index.html" class="nav-brand">
+            <i class="fas fa-layer-group"></i> <span>ForgeCart</span>
+        </a>
+        <div class="nav-links" id="auth-links">
+            <!-- Populated by ui-handler.js -->
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 900px;">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Agentic Automations</h1>
+                <p style="color: var(--text-muted); margin-top: 10px;">Set up intelligent rules to monitor the marketplace for you.</p>
+            </div>
+            <button class="btn" id="ai-generate-toggle">
+                <i class="fas fa-magic"></i> AI Generate
+            </button>
+        </div>
+
+        <!-- AI Assistant Panel (Hidden by default) -->
+        <div id="ai-panel" class="glass" style="display: none; padding: 25px; margin-bottom: 30px; border-color: var(--primary-glow);">
+            <h3 style="margin-bottom: 15px; color: var(--primary);">
+                <i class="fas fa-robot"></i> Forge AI Assistant
+            </h3>
+            <p style="font-size: 0.9rem; margin-bottom: 15px;">Describe what you want to monitor (e.g., "Alert me when hoodies are under $50")</p>
+            <div class="flex gap-2">
+                <input type="text" id="ai-prompt" class="form-control" placeholder="I want to know when..." style="flex: 1;">
+                <button class="btn" id="ai-parse-btn">Analyze</button>
+            </div>
+            <div id="ai-suggestion" style="margin-top: 15px; display: none; padding: 15px; background: rgba(249, 115, 22, 0.05); border-radius: 8px; border: 1px dashed var(--primary);">
+                <!-- Suggesion goes here -->
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Create Automation Form -->
+            <div class="glass" style="padding: 30px; height: fit-content;">
+                <h2 style="margin-bottom: 25px; font-family: 'Outfit';">Initialize Rule</h2>
+                <form id="automation-form">
+                    <div class="form-group">
+                        <label>What should trigger this?</label>
+                        <select id="a-trigger" class="form-control" required>
+                            <option value="new_product">New Product Added</option>
+                            <option value="price_drop">Price Drops</option>
+                            <option value="restock">Restocked Assets</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category (Optional)</label>
+                        <select id="a-category" class="form-control">
+                            <option value="">Any Category</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="digital">Digital Assets</option>
+                            <option value="accessories">Accessories</option>
+                        </select>
+                    </div>
+
+                    <div id="price-condition" class="form-group">
+                        <label>Max Price ($)</label>
+                        <input type="number" id="a-maxPrice" class="form-control" placeholder="Keep empty for any price">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 30px;">
+                        <label>Action</label>
+                        <div class="glass" style="padding: 15px; background: rgba(255,255,255,0.03);">
+                            <i class="fas fa-bell" style="color: var(--primary); margin-right: 10px;"></i>
+                            <span>In-App Notification</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-block" style="margin-top: 20px;">
+                        <i class="fas fa-plus-circle"></i> Activate Automation
+                    </button>
+                </form>
+            </div>
+
+            <!-- Active Automations List -->
+            <div>
+                <h2 style="margin-bottom: 25px; font-family: 'Outfit';">Active Protocols</h2>
+                <div id="automations-list" class="flex flex-col gap-4">
+                    <!-- Dynamic List -->
+                    <div id="no-automations" style="text-align: center; padding: 50px 20px; color: var(--text-dim);">
+                        <i class="fas fa-microchip" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.2;"></i>
+                        <p>No active monitoring rules found.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/ui-handler.js"></script>
+    <script type="module" src="js/automation.js"></script>
+</body>
+</html>

@@ -14,6 +14,7 @@ This project serves as a premium foundation for building a scalable marketplace,
 *   ⚡ **Real-Time Syncing**: Instant synchronization of cart data and trending assets across all devices using Firestore listeners.
 *   🤖 **AI Shopping Assistant**: Semantic-powered assistance to help developers find gear based on their tech stack and project needs.
 *   🛡️ **Admin Dashboard**: A secure, RBAC (Role-Based Access Control) powered control center for managing inventory, orders, and users.
+*   ⚙️ **Agentic Automations**: Rule-based system for "Trigger → Condition → Action" workflows (e.g., price drop alerts).
 *   🌓 **Theme Engine**: Seamless Light/Dark mode transitions with persistence, maintaining the core glassmorphism aesthetic.
 *   📦 **Digital Asset Fulfillment**: Secure delivery logic for digital products with instant download access.
 
@@ -57,6 +58,13 @@ graph TD
 
 ### 🤖 Forge AI Assistant
 Describe your project or tech stack, and the AI Assistant will optimize your shopping experience by recommending relevant gear, hoodies, or digital assets.
+
+### ⚙️ Agentic Automation System
+Set up intelligent monitoring protocols to stay ahead of the marketplace:
+*   **Trigger**: New products, price drops, or restock events.
+*   **Condition**: Filter by category, max price, or specific product IDs.
+*   **Action**: Receive real-time in-app notifications with deep links to products.
+*   **AI Generator**: Use natural language to quickly spin up new automation rules.
 
 ### 🌓 Advanced UI & Theme Engine
 *   **Persistent Theme**: Automatically remembers your Light or Dark mode preference.

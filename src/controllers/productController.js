@@ -1,4 +1,5 @@
 const { db, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc } = require('../config/firebaseAdmin');
+const { runAutomationEngine } = require('../services/automationEngine');
 
 const parseNumber = (value) => {
     if (value === undefined) {
@@ -156,6 +157,10 @@ exports.createProduct = async (req, res, next) => {
         };
 
         await setDoc(newDocRef, productData);
+        
+        // Trigger Automation: new_product
+        runAutomationEngine('new_product', productData).catch(err => console.error(err));
+
         res.status(201).json({ status: 'success', data: productData });
     } catch (error) {
         next(error);
@@ -172,8 +177,26 @@ exports.updateProduct = async (req, res, next) => {
         if (updates.inventory) updates.inventory = Number(updates.inventory);
 
         const docRef = doc(db, 'products', id);
+        const oldDocSnap = await getDoc(docRef);
+        const oldProduct = oldDocSnap.exists() ? oldDocSnap.data() : null;
+
         await updateDoc(docRef, updates);
         
+        // Fetch new state for triggers
+        const newDocSnap = await getDoc(docRef);
+        const newProduct = { id, ...newDocSnap.data() };
+
+        if (oldProduct) {
+            // Price Drop Trigger
+            if (newProduct.price < oldProduct.price) {
+                runAutomationEngine('price_drop', newProduct).catch(err => console.error(err));
+            }
+            // Restock Trigger
+            if (oldProduct.inventory === 0 && newProduct.inventory > 0) {
+                runAutomationEngine('restock', newProduct).catch(err => console.error(err));
+            }
+        }
+
         res.status(200).json({ status: 'success', message: `Product ${id} updated.` });
     } catch (error) {
         next(error);
