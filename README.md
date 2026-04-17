@@ -154,6 +154,10 @@ Feel free to fork, extend, and integrate your backend solutions.
 
 ---
 
+Used Antigravity for coding.
+
+---
+
 ## 📜 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
