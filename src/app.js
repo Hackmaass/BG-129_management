@@ -3,7 +3,6 @@ const cors = require('cors');
 const errorHandler = require('./middlewares/errorHandler');
 
 // Route Imports
-const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
@@ -15,7 +14,6 @@ app.use(cors());
 app.use(express.json());
 
 // Main Routes
-app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
